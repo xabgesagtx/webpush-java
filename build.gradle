@@ -30,7 +30,7 @@ dependencies {
     implementation group: 'org.asynchttpclient', name: 'async-http-client', version: '2.12.4'
 
     // For cryptographic operations
-    shadow group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.70'
+    shadow group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: '1.82'
 
     // For creating and signing JWT
     implementation group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.9.6'
@@ -61,16 +61,16 @@ wrapper {
     gradleVersion = '5.1'
 }
 
-compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
-compileTestJava {
-    sourceCompatibility = 1.8
-}
 
-mainClassName = 'nl.martijndwars.webpush.cli.Cli'
+application {
+    mainClass = 'nl.martijndwars.webpush.cli.Cli'
+}
 
 run {
     classpath configurations.shadow.files
@@ -88,13 +88,13 @@ test {
     exclude '**/SeleniumTests.class'
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
+tasks.register('javadocJar', Jar) {
+    archiveClassifier = 'javadoc'
     from javadoc
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
+tasks.register('sourcesJar', Jar) {
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
