@@ -2,8 +2,7 @@ package nl.martijndwars.webpush;
 
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
@@ -47,7 +46,7 @@ public class Notification {
      *  @see <a href="https://tools.ietf.org/html/rfc8030#section-5.4">Replacing Push Messages</a>
      *
      */
-    private String topic;
+    private final String topic;
 
     /**
      * Time in seconds that the push message is retained by the push service
@@ -55,7 +54,7 @@ public class Notification {
     private final int ttl;
 
     private static final int ONE_DAY_DURATION_IN_SECONDS = 86400;
-    private static int DEFAULT_TTL = 28 * ONE_DAY_DURATION_IN_SECONDS;
+    private static final int DEFAULT_TTL = 28 * ONE_DAY_DURATION_IN_SECONDS;
 
     public Notification(String endpoint, ECPublicKey userPublicKey, byte[] userAuth, byte[] payload, int ttl, Urgency urgency, String topic) {
         this.endpoint = endpoint;
@@ -154,10 +153,10 @@ public class Notification {
         return topic;
     }
 
-    public String getOrigin() throws MalformedURLException {
-        URL url = new URL(getEndpoint());
+    public String getOrigin() {
+        var url = URI.create(getEndpoint());
 
-        return url.getProtocol() + "://" + url.getHost();
+        return url.getScheme() + "://" + url.getHost();
     }
 
     public static NotificationBuilder builder() {

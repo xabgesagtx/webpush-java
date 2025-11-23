@@ -1,29 +1,17 @@
 package nl.martijndwars.webpush;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.message.BasicHeader;
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.interfaces.ECPublicKey;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
 import java.io.IOException;
 import java.net.URI;
-import java.security.*;
-import java.security.spec.InvalidKeySpecException;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.http.HttpResponse;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class PushService extends AbstractPushService<PushService> {
+
 
     public PushService() {
     }
@@ -60,11 +48,11 @@ public class PushService extends AbstractPushService<PushService> {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public HttpResponse send(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException, ExecutionException, InterruptedException {
+    public HttpResponse<String> send(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException, ExecutionException, InterruptedException {
         return sendAsync(notification, encoding).get();
     }
 
-    public HttpResponse send(Notification notification) throws GeneralSecurityException, IOException, JoseException, ExecutionException, InterruptedException {
+    public HttpResponse<String> send(Notification notification) throws GeneralSecurityException, IOException, JoseException, ExecutionException, InterruptedException {
         return send(notification, Encoding.AES128GCM);
     }
 
@@ -81,20 +69,18 @@ public class PushService extends AbstractPushService<PushService> {
      * @deprecated Use {@link PushAsyncService#send(Notification, Encoding)} instead.
      */
     @Deprecated
-    public Future<HttpResponse> sendAsync(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException {
-        HttpPost httpPost = preparePost(notification, encoding);
+    public Future<HttpResponse<String>> sendAsync(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException, InterruptedException {
+        var httpPost = preparePost(notification, encoding);
 
-        final CloseableHttpAsyncClient closeableHttpAsyncClient = HttpAsyncClients.createSystem();
-        closeableHttpAsyncClient.start();
 
-        return closeableHttpAsyncClient.execute(httpPost, new ClosableCallback(closeableHttpAsyncClient));
+        return httpClient.sendAsync(httpPost.build(), HttpResponse.BodyHandlers.ofString());
     }
 
     /**
      * @deprecated Use {@link PushAsyncService#send(Notification)} instead.
      */
     @Deprecated
-    public Future<HttpResponse> sendAsync(Notification notification) throws GeneralSecurityException, IOException, JoseException {
+    public Future<HttpResponse<String>> sendAsync(Notification notification) throws GeneralSecurityException, IOException, JoseException, InterruptedException {
         return sendAsync(notification, Encoding.AES128GCM);
     }
 
@@ -108,12 +94,12 @@ public class PushService extends AbstractPushService<PushService> {
      * @throws IOException
      * @throws JoseException
      */
-    public HttpPost preparePost(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException {
+    public java.net.http.HttpRequest.Builder preparePost(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException {
         HttpRequest request = prepareRequest(notification, encoding);
-        HttpPost httpPost = new HttpPost(request.getUrl());
-        request.getHeaders().forEach(httpPost::addHeader);
+        var httpPost = java.net.http.HttpRequest.newBuilder(URI.create(request.getUrl()));
+        request.getHeaders().forEach(httpPost::header);
         if (request.getBody() != null) {
-            httpPost.setEntity(new ByteArrayEntity(request.getBody()));
+            java.net.http.HttpRequest.Builder post = httpPost.POST(java.net.http.HttpRequest.BodyPublishers.ofByteArray(request.getBody()));
         }
         return httpPost;
     }

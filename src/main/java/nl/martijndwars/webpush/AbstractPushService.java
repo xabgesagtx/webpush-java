@@ -8,16 +8,8 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
+import java.net.http.HttpClient;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.HashMap;
@@ -27,6 +19,8 @@ public abstract class AbstractPushService<T extends AbstractPushService<T>> {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     public static final String SERVER_KEY_ID = "server-key-id";
     public static final String SERVER_KEY_CURVE = "P-256";
+
+    protected final HttpClient httpClient = HttpClient.newHttpClient();
 
     /**
      * The Google Cloud Messaging API key (for pre-VAPID in Chrome)
@@ -78,7 +72,7 @@ public abstract class AbstractPushService<T extends AbstractPushService<T>> {
 
     /**
      * Encrypt the payload.
-     *
+     * <p>
      * Encryption uses Elliptic curve Diffie-Hellman (ECDH) cryptography over the prime256v1 curve.
      *
      * @param payload       Payload to encrypt.
@@ -126,7 +120,7 @@ public abstract class AbstractPushService<T extends AbstractPushService<T>> {
         return keyPairGenerator.generateKeyPair();
     }
 
-    protected final HttpRequest prepareRequest(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException {
+    protected final HttpRequest prepareRequest(Notification notification, Encoding encoding) throws GeneralSecurityException, JoseException {
         if (getPrivateKey() != null && getPublicKey() != null) {
             if (!Utils.verifyKeyPair(getPrivateKey(), getPublicKey())) {
                 throw new IllegalStateException("Public key and private key do not match.");

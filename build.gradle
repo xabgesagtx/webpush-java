@@ -1,18 +1,11 @@
 plugins {
-    id 'application'
-    id 'com.github.johnrengelman.shadow' version '7.1.1'
-
-    // Used by release.gradle
+    id 'java-library'
     id 'maven-publish'
-    id 'signing'
-    id 'io.codearte.nexus-staging' version '0.30.0'
 }
 
-apply plugin: 'application'
-apply plugin: 'com.github.johnrengelman.shadow'
 
-group 'nl.martijndwars'
-version '5.1.2'
+group 'com.github.xabgesagtx'
+version '0.1'
 
 repositories {
     mavenLocal()
@@ -20,60 +13,24 @@ repositories {
 }
 
 dependencies {
-    // For CLI
-    implementation group: 'com.beust', name: 'jcommander', version: '1.81'
-
-    // For making HTTP requests
-    implementation group: 'org.apache.httpcomponents', name: 'httpasyncclient', version: '4.1.5'
-
-    // For making async HTTP requests
-    implementation group: 'org.asynchttpclient', name: 'async-http-client', version: '2.12.4'
-
     // For cryptographic operations
-    shadow group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.70'
-
+    api 'org.bouncycastle:bcprov-jdk18on:1.82'
     // For creating and signing JWT
-    implementation group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.9.6'
+    api 'org.bitbucket.b_c:jose4j:0.9.6'
 
-    // For parsing JSON
     testImplementation group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
-
-    // For making HTTP requests
-    testImplementation group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
-
-    // For testing, obviously
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.1'
-
-    // For running JUnit tests
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.1'
-
-    // For turning InputStream to String
-    testImplementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // For reading the demo vapid keypair from a pem file
-    testImplementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.70'
-
+    testImplementation 'org.bouncycastle:bcpkix-jdk18on:1.81'
     // For verifying Base64Encoder results in unit tests
-    testImplementation group: 'com.google.guava', name: 'guava', version: '33.4.8-jre'
+    testImplementation 'com.google.guava:guava:33.4.8-jre'
 }
 
-wrapper {
-    gradleVersion = '5.1'
-}
-
-compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-}
-
-compileTestJava {
-    sourceCompatibility = 1.8
-}
-
-mainClassName = 'nl.martijndwars.webpush.cli.Cli'
-
-run {
-    classpath configurations.shadow.files
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 test {
@@ -88,13 +45,13 @@ test {
     exclude '**/SeleniumTests.class'
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
+tasks.register('javadocJar', Jar) {
+    archiveClassifier = 'javadoc'
     from javadoc
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
+tasks.register('sourcesJar', Jar) {
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
@@ -103,6 +60,39 @@ artifacts {
     archives sourcesJar
 }
 
-if (hasProperty('release')) {
-    apply from: 'release.gradle'
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'webpush-java'
+                description = 'A concise description of my library'
+                url = 'https://github.com/xabgesagtx/webpush-java'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:xabgesagtx/webpush-java.git'
+                    developerConnection = 'scm:git:git@github.com:xabgesagtx/webpush-java.git'
+                    url = 'https://github.com/xabgesagtx/webpush-java'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/xabgesagtx/webpush-java"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
+
