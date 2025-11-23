@@ -1,25 +1,25 @@
 # WebPush
 
-A Web Push library for Java 8. Supports payloads and VAPID.
+**THIS IS A FORK OF https://github.com/web-push-libs/webpush-java FOR USE IN MY OWN PROJECTS**
 
-[![Build Status](https://travis-ci.org/web-push-libs/webpush-java.svg?branch=master)](https://travis-ci.org/web-push-libs/webpush-java)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/nl.martijndwars/web-push/badge.svg)](https://search.maven.org/search?q=g:nl.martijndwars%20AND%20a:web-push)
+A Web Push library for Java 21. Supports payloads and VAPID.
+
 
 ## Installation
 
 For Gradle, add the following dependency to `build.gradle`:
 
 ```groovy
-compile group: 'nl.martijndwars', name: 'web-push', version: '5.1.2'
+compile 'com.github.xabgesagtx:web-push:0.1'
 ```
 
 For Maven, add the following dependency to `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>nl.martijndwars</groupId>
-    <artifactId>web-push</artifactId>
-    <version>5.1.2</version>
+    <groupId>com.github.xabgesagtx</groupId>
+    <artifactId>web-push</artifactId>
+    <version>0.1</version>
 </dependency>
 ```
 
@@ -36,55 +36,6 @@ To assemble all archives in the project:
 ## Usage
 
 This library is meant to be used as a Java API. However, it also exposes a CLI to easily generate a VAPID keypair and send a push notification.
-
-### CLI
-
-A command-line interface is available to easily generate a keypair (for VAPID) and to try sending a notification.
-
-```
-$ ./gradlew run
-Usage: <main class> [command] [command options]
-  Commands:
-    generate-key      Generate a VAPID keypair
-      Usage: generate-key
-
-    send-notification      Send a push notification
-      Usage: send-notification [options]
-        Options:
-          --subscription
-            A subscription in JSON format.
-          --publicKey
-            The public key as base64url encoded string.
-          --privateKey
-            The private key as base64url encoded string.
-          --payload
-            The message to send.
-            Default: Hello, world!
-          --ttl
-            The number of seconds that the push service should retain the message.
-
-```
-
-For example, to generate a keypair and output the keys in base64url encoding:
-
-```
-$ ./gradlew run --args="generate-key"
-PublicKey:
-BGgL7I82SAQM78oyGwaJdrQFhVfZqL9h4Y18BLtgJQ-9pSGXwxqAWQudqmcv41RcWgk1ssUeItv4-8khxbhYveM=
-
-PrivateKey:
-ANlfcVVFB4JiMYcI74_h9h04QZ1Ks96AyEa1yrMgDwn3
-```
-
-Use the public key in the call to `pushManager.subscribe` to get a subscription. Then, to send a notification:
-
-```
-$ ./gradlew run --args='send-notification --endpoint="https://fcm.googleapis.com/fcm/send/fH-M3xRoLms:APA91bGB0rkNdxTFsXaJGyyyY7LtEmtHJXy8EqW48zSssxDXXACWCvc9eXjBVU54nrBkARTj4Xvl303PoNc0_rwAMrY9dvkQzi9fkaKLP0vlwoB0uqKygPeL77Y19VYHbj_v_FolUlHa" --key="BOtBVgsHVWXzwhDAoFE8P2IgQvabz_tuJjIlNacmS3XZ3fRDuVWiBp8bPR3vHCA78edquclcXXYb-olcj3QtIZ4=" --auth="IOScBh9LW5mJ_K2JwXyNqQ==" --publicKey="BGgL7I82SAQM78oyGwaJdrQFhVfZqL9h4Y18BLtgJQ-9pSGXwxqAWQudqmcv41RcWgk1ssUeItv4-8khxbhYveM=" --privateKey="ANlfcVVFB4JiMYcI74_h9h04QZ1Ks96AyEa1yrMgDwn3" --payload="Hello world"'
-```
-
-#### Proxy
-
-If you are behind a corporate proxy you may need to specify the proxy host. This library respects [Java's Network Properties](https://docs.oracle.com/javase/7/docs/api/java/net/doc-files/net-properties.html), which means that you can pass `https.proxyHost` and `http.proxyPort` when invoking `java`, e.g. `java -Dhttp.proxyHost=proxy.corp.com -Dhttp.proxyPort=80 -Dhttps.proxyHost=proxy.corp.com -Dhttps.proxyPort=443 -jar ...`.
 
 ### API
 
@@ -111,9 +62,6 @@ To send a push notification:
 ```java
 pushService.send(notification);
 ```
-
-See [wiki/Usage-Example](https://github.com/web-push-libs/webpush-java/wiki/Usage-Example)
-for detailed usage instructions. If you plan on using VAPID, read [wiki/VAPID](https://github.com/web-push-libs/webpush-java/wiki/VAPID).
 
 ## Testing
 

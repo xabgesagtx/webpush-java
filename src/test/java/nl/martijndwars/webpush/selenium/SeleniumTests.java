@@ -2,6 +2,7 @@ package nl.martijndwars.webpush.selenium;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
@@ -19,6 +20,7 @@ public class SeleniumTests {
     protected static final String GCM_SENDER_ID = "759071690750";
     protected static final String PUBLIC_KEY = "BNFDO1MUnNpx0SuQyQcAAWYETa2+W8z/uc5sxByf/UZLHwAhFLwEDxS5iB654KHiryq0AxDhFXS7DVqXDKjjN+8=";
 
+    @AutoClose
     protected static TestingService testingService = new TestingService("http://localhost:8090/api/");
     protected static int testSuiteId;
 
@@ -32,7 +34,7 @@ public class SeleniumTests {
      * @throws IOException
      */
     @AfterAll
-    public static void tearDown() throws IOException {
+    public static void tearDown() throws IOException, InterruptedException {
         testingService.endTestSuite(testSuiteId);
     }
 
@@ -42,7 +44,7 @@ public class SeleniumTests {
      * @return
      */
     @TestFactory
-    public Stream<DynamicTest> dynamicTests() throws IOException {
+    public Stream<DynamicTest> dynamicTests() throws IOException, InterruptedException {
         testSuiteId = testingService.startTestSuite();
 
         return getConfigurations().map(configuration -> {

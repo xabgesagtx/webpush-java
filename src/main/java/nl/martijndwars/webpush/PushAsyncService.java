@@ -1,20 +1,19 @@
 package nl.martijndwars.webpush;
 
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.BoundRequestBuilder;
-import org.asynchttpclient.Response;
 import org.jose4j.lang.JoseException;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.util.concurrent.CompletableFuture;
 
-import static org.asynchttpclient.Dsl.asyncHttpClient;
 
 public class PushAsyncService extends AbstractPushService<PushAsyncService> {
 
-    private final AsyncHttpClient httpClient = asyncHttpClient();
 
     public PushAsyncService() {
     }
@@ -49,12 +48,12 @@ public class PushAsyncService extends AbstractPushService<PushAsyncService> {
      * @throws IOException
      * @throws JoseException
      */
-    public CompletableFuture<Response> send(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException {
-        BoundRequestBuilder httpPost = preparePost(notification, encoding);
-        return httpPost.execute().toCompletableFuture();
+    public CompletableFuture<HttpResponse<String>> send(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException {
+        var httpPost = preparePost(notification, encoding);
+        return httpClient.sendAsync(httpPost.build(), BodyHandlers.ofString());
     }
 
-    public CompletableFuture<Response> send(Notification notification) throws GeneralSecurityException, IOException, JoseException {
+    public CompletableFuture<HttpResponse<String>> send(Notification notification) throws GeneralSecurityException, IOException, JoseException {
         return send(notification, Encoding.AES128GCM);
     }
 
@@ -68,12 +67,14 @@ public class PushAsyncService extends AbstractPushService<PushAsyncService> {
      * @throws IOException
      * @throws JoseException
      */
-    public BoundRequestBuilder preparePost(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException {
+    public java.net.http.HttpRequest.Builder preparePost(Notification notification, Encoding encoding) throws GeneralSecurityException, IOException, JoseException {
         HttpRequest request = prepareRequest(notification, encoding);
-        BoundRequestBuilder httpPost = httpClient.preparePost(request.getUrl());
-        request.getHeaders().forEach(httpPost::addHeader);
+        var httpPost = java.net.http.HttpRequest.newBuilder(URI.create(request.getUrl()));
+        request.getHeaders().forEach(httpPost::header);
         if (request.getBody() != null) {
-            httpPost.setBody(request.getBody());
+            httpPost.POST(BodyPublishers.ofByteArray(request.getBody()));
+        } else {
+            httpPost.POST(BodyPublishers.noBody());
         }
         return httpPost;
     }

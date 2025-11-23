@@ -7,9 +7,9 @@ import com.google.gson.JsonPrimitive;
 import nl.martijndwars.webpush.Notification;
 import nl.martijndwars.webpush.PushService;
 import nl.martijndwars.webpush.Subscription;
-import org.apache.http.HttpResponse;
 import org.junit.jupiter.api.function.Executable;
 
+import java.net.http.HttpResponse;
 import java.security.GeneralSecurityException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,9 +20,9 @@ public class BrowserTest implements Executable {
     public static final String PRIVATE_KEY = "AM0aAyoIryzARADnIsSCwg1p1aWFAL3Idc8dNXpf74MH";
     public static final String VAPID_SUBJECT = "http://localhost:8090";
 
-    private TestingService testingService;
-    private Configuration configuration;
-    private int testSuiteId;
+    private final TestingService testingService;
+    private final Configuration configuration;
+    private final int testSuiteId;
 
     public BrowserTest(TestingService testingService, Configuration configuration, int testSuiteId) {
         this.configuration = configuration;
@@ -48,8 +48,8 @@ public class BrowserTest implements Executable {
         String message = "Hëllö, world!";
         Notification notification = new Notification(subscription, message);
 
-        HttpResponse response = pushService.send(notification);
-        assertEquals(201, response.getStatusLine().getStatusCode());
+        HttpResponse<String> response = pushService.send(notification);
+        assertEquals(201, response.statusCode());
 
         JsonArray messages = testingService.getNotificationStatus(testSuiteId, testId);
         assertEquals(1, messages.size());
