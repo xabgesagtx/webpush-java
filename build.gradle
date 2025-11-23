@@ -64,3 +64,39 @@ artifacts {
     archives sourcesJar
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'webpush-java'
+                description = 'A concise description of my library'
+                url = 'https://github.com/xabgesagtx/webpush-java'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:xabgesagtx/webpush-java.git'
+                    developerConnection = 'scm:git:git@github.com:xabgesagtx/webpush-java.git'
+                    url = 'https://github.com/xabgesagtx/webpush-java'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/xabgesagtx/webpush-java"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
