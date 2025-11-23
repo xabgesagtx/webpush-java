@@ -27,10 +27,6 @@ dependencies {
     testImplementation 'com.google.guava:guava:33.4.8-jre'
 }
 
-wrapper {
-    gradleVersion = '5.1'
-}
-
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
