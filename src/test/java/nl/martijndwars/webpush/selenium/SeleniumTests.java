@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.security.Security;
 import java.util.Base64;
 import java.util.stream.Stream;
@@ -21,7 +22,8 @@ public class SeleniumTests {
     protected static final String PUBLIC_KEY = "BNFDO1MUnNpx0SuQyQcAAWYETa2+W8z/uc5sxByf/UZLHwAhFLwEDxS5iB654KHiryq0AxDhFXS7DVqXDKjjN+8=";
 
     @AutoClose
-    protected static TestingService testingService = new TestingService("http://localhost:8090/api/");
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+    protected static TestingService testingService = new TestingService(HTTP_CLIENT, "http://localhost:8090/api/");
     protected static int testSuiteId;
 
     public SeleniumTests() {
@@ -48,7 +50,7 @@ public class SeleniumTests {
         testSuiteId = testingService.startTestSuite();
 
         return getConfigurations().map(configuration -> {
-            BrowserTest browserTest = new BrowserTest(testingService, configuration, testSuiteId);
+            BrowserTest browserTest = new BrowserTest(testingService, HTTP_CLIENT, configuration, testSuiteId);
 
             return dynamicTest(browserTest.getDisplayName(), browserTest);
         });

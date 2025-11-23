@@ -4,6 +4,7 @@ import org.jose4j.lang.JoseException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -15,27 +16,28 @@ import java.util.concurrent.CompletableFuture;
 public class PushAsyncService extends AbstractPushService<PushAsyncService> {
 
 
-    public PushAsyncService() {
+    public PushAsyncService(HttpClient httpClient) {
+        super(httpClient);
     }
 
-    public PushAsyncService(String gcmApiKey) {
-        super(gcmApiKey);
+    public PushAsyncService(HttpClient httpClient, String gcmApiKey) {
+        super(httpClient, gcmApiKey);
     }
 
-    public PushAsyncService(KeyPair keyPair) {
-        super(keyPair);
+    public PushAsyncService(HttpClient httpClient, KeyPair keyPair) {
+        super(httpClient, keyPair);
     }
 
-    public PushAsyncService(KeyPair keyPair, String subject) {
-        super(keyPair, subject);
+    public PushAsyncService(HttpClient httpClient, KeyPair keyPair, String subject) {
+        super(httpClient, keyPair, subject);
     }
 
-    public PushAsyncService(String publicKey, String privateKey) throws GeneralSecurityException {
-        super(publicKey, privateKey);
+    public PushAsyncService(HttpClient httpClient, String publicKey, String privateKey) throws GeneralSecurityException {
+        super(httpClient, publicKey, privateKey);
     }
 
-    public PushAsyncService(String publicKey, String privateKey, String subject) throws GeneralSecurityException {
-        super(publicKey, privateKey, subject);
+    public PushAsyncService(HttpClient httpClient, String publicKey, String privateKey, String subject) throws GeneralSecurityException {
+        super(httpClient, publicKey, privateKey, subject);
     }
 
     /**

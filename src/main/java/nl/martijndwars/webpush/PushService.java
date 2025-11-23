@@ -4,6 +4,7 @@ import org.jose4j.lang.JoseException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -13,27 +14,28 @@ import java.util.concurrent.Future;
 public class PushService extends AbstractPushService<PushService> {
 
 
-    public PushService() {
+    public PushService(HttpClient httpClient) {
+        super(httpClient);
     }
 
-    public PushService(String gcmApiKey) {
-        super(gcmApiKey);
+    public PushService(HttpClient httpClient, String gcmApiKey) {
+        super(httpClient, gcmApiKey);
     }
 
-    public PushService(KeyPair keyPair) {
-        super(keyPair);
+    public PushService(HttpClient httpClient, KeyPair keyPair) {
+        super(httpClient, keyPair);
     }
 
-    public PushService(KeyPair keyPair, String subject) {
-        super(keyPair, subject);
+    public PushService(HttpClient httpClient, KeyPair keyPair, String subject) {
+        super(httpClient, keyPair, subject);
     }
 
-    public PushService(String publicKey, String privateKey) throws GeneralSecurityException {
-        super(publicKey, privateKey);
+    public PushService(HttpClient httpClient, String publicKey, String privateKey) throws GeneralSecurityException {
+        super(httpClient, publicKey, privateKey);
     }
 
-    public PushService(String publicKey, String privateKey, String subject) throws GeneralSecurityException {
-        super(publicKey, privateKey, subject);
+    public PushService(HttpClient httpClient, String publicKey, String privateKey, String subject) throws GeneralSecurityException {
+        super(httpClient, publicKey, privateKey, subject);
     }
 
     /**

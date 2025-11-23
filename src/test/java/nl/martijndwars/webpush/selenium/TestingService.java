@@ -14,11 +14,12 @@ import java.net.http.HttpResponse;
 /**
  * Java wrapper for interacting with the Web Push Testing Service.
  */
-public class TestingService implements AutoCloseable {
+public class TestingService {
     private final String baseUrl;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final HttpClient httpClient;
 
-    public TestingService(String baseUrl) {
+    public TestingService(HttpClient httpClient, String baseUrl) {
+        this.httpClient = httpClient;
         this.baseUrl = baseUrl;
     }
 
@@ -147,8 +148,4 @@ public class TestingService implements AutoCloseable {
         return root.getAsJsonObject().get("data").getAsJsonObject();
     }
 
-    @Override
-    public void close() {
-        httpClient.close();
-    }
 }

@@ -20,7 +20,7 @@ public abstract class AbstractPushService<T extends AbstractPushService<T>> {
     public static final String SERVER_KEY_ID = "server-key-id";
     public static final String SERVER_KEY_CURVE = "P-256";
 
-    protected final HttpClient httpClient = HttpClient.newHttpClient();
+    protected final HttpClient httpClient;
 
     /**
      * The Google Cloud Messaging API key (for pre-VAPID in Chrome)
@@ -43,30 +43,34 @@ public abstract class AbstractPushService<T extends AbstractPushService<T>> {
      */
     private PrivateKey privateKey;
 
-    public AbstractPushService() {
+    public AbstractPushService(HttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
-    public AbstractPushService(String gcmApiKey) {
+    public AbstractPushService(HttpClient httpClient, String gcmApiKey) {
+        this(httpClient);
         this.gcmApiKey = gcmApiKey;
     }
 
-    public AbstractPushService(KeyPair keyPair) {
+    public AbstractPushService(HttpClient httpClient, KeyPair keyPair) {
+        this(httpClient);
         this.publicKey = keyPair.getPublic();
         this.privateKey = keyPair.getPrivate();
     }
 
-    public AbstractPushService(KeyPair keyPair, String subject) {
-        this(keyPair);
+    public AbstractPushService(HttpClient httpClient, KeyPair keyPair, String subject) {
+        this(httpClient, keyPair);
         this.subject = subject;
     }
 
-    public AbstractPushService(String publicKey, String privateKey) throws GeneralSecurityException {
+    public AbstractPushService(HttpClient httpClient, String publicKey, String privateKey) throws GeneralSecurityException {
+        this(httpClient);
         this.publicKey = Utils.loadPublicKey(publicKey);
         this.privateKey = Utils.loadPrivateKey(privateKey);
     }
 
-    public AbstractPushService(String publicKey, String privateKey, String subject) throws GeneralSecurityException {
-        this(publicKey, privateKey);
+    public AbstractPushService(HttpClient httpClient, String publicKey, String privateKey, String subject) throws GeneralSecurityException {
+        this(httpClient, publicKey, privateKey);
         this.subject = subject;
     }
 
